@@ -2,7 +2,7 @@
 This is a cash register web application, which allows the user to change prices and enter their money to receive their change. This project was used to obtain the JavaScript Algorithms and Data Structures certification from freeCodeCamp.
 
 ## I have to fulfill the follow user stories to reach the certification:
-1.You should have an input element with an id of "cash"
+1. You should have an input element with an id of "cash"
 2. You should have a div, span or p element with an id of "change-due"
 3. You should have a button element with an id of "purchase-btn"
 4. When the value in the #cash element is less than price, an alert should appear with the text "Customer does not have enough money to purchase the item"
