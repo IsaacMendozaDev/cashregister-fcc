@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cash Register Project</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link
+      rel="shortcut icon"
+      href="./assets/cash-register-svgrepo-com.svg"
+      type="image/xml+svg"
+    />
+  </head>
+
+  <body>
+    <main class="main">
+      <h1>Cash Register Project</h1>
+      <div class="box-cash_register">
+        <div class="box-superior-screen">
+          <div class="superior-screen">
+            <h3 class="subtitle">Price</h3>
+            <p id="price"></p>
+          </div>
+          <div class="conector-superior_base"></div>
+        </div>
+        <div class="base-cash_register">
+          <form role="calculate" id="calculate-form">
+            <div class="center-screen">
+              <label for="cash">
+                <input
+                  required
+                  placeholder="Type your cash here..."
+                  id="cash"
+                  type="text"
+                  pattern="[0-9]+(\.[0-9]+)?"
+                  title="Ingresa un número válido"
+                />
+              </label>
+              <h3 class="subtitle">Change Price</h3>
+              <button type="submit" id="purchase-btn">Purchase</button>
+              <input
+                id="input-price"
+                placeholder="Type your own price..."
+                type="text"
+                pattern="[0-9]+(\.[0-9]+)?"
+                title="Ingresa un número válido"
+              />
+            </div>
+          </form>
+          <div class="screens-cash_register">
+            <h3 class="subtitle">Cash in Draw</h3>
+            <h3 class="subtitle">Change Due</h3>
+            <div id="cid"></div>
+            <div id="change-due"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="./script.js"></script>
+  </body>
+</html>
