@@ -1,12 +1,10 @@
-//DOM VARIBLES
-const cash = document.getElementById("cash");
-const outputText = document.getElementById("change-due");
-const purchaseBtn = document.getElementById("purchase-btn");
-const cidHTML = document.getElementById("cid");
-const priceContainer = document.getElementById("price");
-const priceInput = document.getElementById("input-price");
-const calculateForm = document.getElementById("calculate-form");
-//SCRIPT VARIABLES
+const $cash = document.getElementById("cash");
+const $calculateChangeInDrawForm = document.getElementById("calculate-form");
+
+const $priceHTML = document.getElementById("price");
+const $changeDueHTML = document.getElementById("change-due");
+const $cashInDrawerHTML = document.getElementById("cid");
+
 let price = 3.26;
 let cid = [
   ["PENNY", 1.01],
@@ -19,108 +17,107 @@ let cid = [
   ["TWENTY", 60],
   ["ONE HUNDRED", 100],
 ];
-const unitValues = [100, 20, 10, 5, 1, 0.25, 0.1, 0.05, 0.01];
 
-//DISPLAY UI INFORMATION
+const displayUI = (msg, statusMsg) => {
+  const message = statusMsg ? `Status: ${statusMsg}` : msg;
 
-const displayUIInformation = () => {
-  priceContainer.value = "";
-  let cidConstructorHTML = "";
+  $changeDueHTML.textContent = message;
+};
+
+const getCashInDrawerHTML = () => {
+  let cashInDrawerHTML = "";
+
   cid.forEach((unitAndValue) => {
-    cidConstructorHTML += `<p><b>${unitAndValue[0]}:</b> <span>$${unitAndValue[1]}</span></p>`;
+    const unit = unitAndValue[0];
+    const value = unitAndValue[1];
+
+    cashInDrawerHTML += `<p class="p label-drawer"><span class="drawer-unit" >${unit}: </span><span class="drawer-value">${value}</span></p>`;
   });
 
-  priceContainer.innerHTML = `$${price}`;
-  cidHTML.innerHTML = cidConstructorHTML;
-};
-displayUIInformation();
-
-//COMPONENT 'STATUS REGISTER'
-const queryStatusRegister = (changeValue) => {
-  cash.value = "";
-  const moneyInCid = cid
-    .slice()
-    .reverse()
-    .reduce(
-      (acc, currentValue, index) =>
-        changeValue >= unitValues[index] || changeValue >= currentValue[1]
-          ? acc + currentValue[1]
-          : acc,
-      0
-    );
-  if (moneyInCid < changeValue)
-    return displayChange("INSUFFICIENT_FUNDS", false);
-  if (moneyInCid == changeValue) return displayChange("CLOSED", changeValue);
-  if (moneyInCid > changeValue) return displayChange("OPEN", changeValue);
+  return cashInDrawerHTML;
 };
 
-//COMPONENT 'CHANGE MONEY'
-const takeMoneyofCid = (changeValue) => {
-  let change = changeValue;
-  const changeArray = [
-    ["ONE HUNDRED", 0],
-    ["TWENTY", 0],
-    ["TEN", 0],
-    ["FIVE", 0],
-    ["ONE", 0],
-    ["QUARTER", 0],
-    ["DIME", 0],
-    ["NICKEL", 0],
-    ["PENNY", 0],
-  ];
-  cid
-    .slice()
-    .reverse()
-    .forEach((moneyInCash, index) => {
-      while (
-        change - unitValues[index] >= 0 &&
-        moneyInCash[1] - unitValues[index] >= 0
-      ) {
-        change = parseFloat((change - unitValues[index]).toFixed(2));
-        moneyInCash[1] = parseFloat(
-          (moneyInCash[1] - unitValues[index]).toFixed(2)
-        );
-        changeArray[index][1] = parseFloat(
-          (changeArray[index][1] + unitValues[index]).toFixed(2)
-        );
-      }
-    });
-  displayUIInformation();
-  return changeArray;
+$cashInDrawerHTML.innerHTML = getCashInDrawerHTML();
+
+const getStatusMessage = (changeDue, cashInDrawer, changeInDrawer) => {
+  if (cashInDrawer < changeDue || changeInDrawer < changeDue)
+    return "INSUFFICENT_FUNDS";
+
+  if (cashInDrawer === changeDue) return "CLOSED";
+
+  if (cashInDrawer > changeDue) return "OPEN";
 };
 
-const displayChange = (status, changeValue) => {
-  const statusStyled =
-    status === "INSUFFICIENT_FUNDS" || status === "CLOSED"
-      ? `<span class="red" >${status}</span>`
-      : `<span class="green" >${status}</span>`;
+const getChangeDue = (price, cash) => {
+  const changeDue = cash - price;
 
-  if (changeValue === false)
-    return (outputText.innerHTML = `<p><b>Status:</b> ${statusStyled}</p>`);
+  return changeDue;
+};
 
-  outputText.innerHTML = `
-  <p><b>Status:</b> ${statusStyled}</p>
-  `;
-  takeMoneyofCid(changeValue).forEach((unitAndValue) => {
-    if (unitAndValue[1] != 0)
-      outputText.innerHTML += `<p><b>${unitAndValue[0]}:</b> $${unitAndValue[1]}</p>`;
+const getCashInDrawer = () => {
+  const cashInDrawerDecimal = cid.reduce(
+    (acc, currentValue) => acc + currentValue[1],
+    0
+  );
+  const cashInDrawer = Number(cashInDrawerDecimal.toFixed(2));
+
+  return cashInDrawer;
+};
+
+const getChangeInDrawer = (changeDue) => {
+  let exactChange = 0;
+  const unitValues = [100, 20, 10, 5, 1, 0.25, 0.1, 0.05, 0.01];
+
+  unitValues.forEach((currentUnit, index) => {
+    const indexUnitCid = cid.length - (1 + index);
+
+    const convertToInteger = (num) => num * 1000;
+    const convertToDecimal = (num) => num / 1000;
+
+    while (currentUnit <= changeDue && cid[indexUnitCid][1] > 0) {
+      exactChange += currentUnit;
+
+      changeDue = convertToDecimal(
+        convertToInteger(changeDue) - convertToInteger(currentUnit)
+      );
+
+      cid[indexUnitCid][1] = convertToDecimal(
+        convertToInteger(cid[indexUnitCid][1]) - convertToInteger(currentUnit)
+      );
+    }
   });
+
+  const changeInDrawer = Number(exactChange).toFixed(2);
+
+  return changeInDrawer;
 };
 
-//COMPONENT 'PURCHASE'
-calculateForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  price = priceInput.value ? priceInput.value : price;
-  displayUIInformation();
-
-  if (parseFloat(cash.value) == price)
-    return (outputText.innerHTML = `<p>No change due - customer paid with exact cash</p>`);
-  if (parseFloat(cash.value) - price < 0)
+const validateCustomerPrice = (cash, price) => {
+  if (cash < price)
     return alert("Customer does not have enough money to purchase the item");
 
-  if (parseFloat(cash.value) > price) {
-    queryStatusRegister(cash.value - price);
-    return cid;
+  if (cash === price) {
+    const msg = "No change due - customer paid with exact cash";
+    displayMessage(msg);
   }
+
+  if (cash > price) {
+    const changeDue = getChangeDue(price, cash);
+
+    const cashInDrawer = getCashInDrawer();
+    const changeInDrawer = getChangeInDrawer(changeDue);
+
+    const statusMsg = getStatusMessage(changeDue, cashInDrawer, changeInDrawer);
+    const msg = "JIJIJAJA";
+
+    displayUI(msg, statusMsg);
+  }
+};
+
+$calculateChangeInDrawForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const cash = Number($cash.value);
+
+  validateCustomerPrice(cash, price);
 });
