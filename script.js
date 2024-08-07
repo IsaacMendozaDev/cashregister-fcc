@@ -14,7 +14,7 @@ let cid = [
 
 const displayResult = (msg, statusMsg) => {
   const $changeInDrawerHTML = document.getElementById("change-due");
-  const message = statusMsg ? `Status: ${statusMsg}${msg} ` : msg;
+  const message = statusMsg ? `Status: ${statusMsg}${msg}` : msg;
 
   displayUI();
   $changeInDrawerHTML.innerHTML = message;
@@ -27,7 +27,7 @@ const getArrHTML = (arr) => {
     const unit = unitAndValue[0];
     const value = unitAndValue[1];
 
-    arrHTML += `<p class="p label-drawer"><span class="drawer-unit" >${unit}: </span><span class="drawer-value">${value}</span></p>`;
+    arrHTML += `<p class="p label-drawer"><span class="drawer-unit" >${unit}: </span><span class="drawer-value">$${value}</span></p>`;
   });
 
   return arrHTML;
@@ -47,7 +47,7 @@ const getStatusMessageAndUpdateCid = (
   newCid
 ) => {
   if (cashInDrawer < changeDue || changeInDrawer < changeDue)
-    return "INSUFFICENT_FUNDS";
+    return "INSUFFICIENT_FUNDS";
 
   if (cashInDrawer === changeDue) {
     cid = newCid;
@@ -61,7 +61,8 @@ const getStatusMessageAndUpdateCid = (
 };
 
 const getChangeDue = (price, cash) => {
-  const changeDue = cash - price;
+  const change = cash - price;
+  const changeDue = Math.round(change * 100) / 100;
 
   return changeDue;
 };
@@ -87,15 +88,16 @@ const calculateChangeFromDrawer = (changeDue) => {
   unitValues.forEach((currentUnit, index) => {
     const indexUnitCid = newCid.length - (1 + index);
 
-    const convertToInteger = (num) => num * 1000;
-    const convertToDecimal = (num) => num / 1000;
-
     while (currentUnit <= changeDue && newCid[indexUnitCid][1] > 0) {
       exactChange += currentUnit;
 
-      console.log(changeInDrawerArr[index]);
-      if (changeInDrawerArr[index]) {
-        changeInDrawerArr[index][1] += currentUnit;
+      const existingChangePlace = changeInDrawerArr.find(
+        (changePlace) => changePlace[0] === newCid[indexUnitCid][0]
+      );
+
+      if (existingChangePlace) {
+        existingChangePlace[1] += currentUnit;
+        existingChangePlace[1] = Math.round(existingChangePlace[1] * 100) / 100;
       } else {
         const value = currentUnit;
         const unit = newCid[indexUnitCid][0];
@@ -103,18 +105,15 @@ const calculateChangeFromDrawer = (changeDue) => {
         changeInDrawerArr.push([unit, value]);
       }
 
-      changeDue = convertToDecimal(
-        convertToInteger(changeDue) - convertToInteger(currentUnit)
-      );
+      changeDue -= currentUnit;
+      newCid[indexUnitCid][1] -= currentUnit;
 
-      newCid[indexUnitCid][1] = convertToDecimal(
-        convertToInteger(newCid[indexUnitCid][1]) -
-          convertToInteger(currentUnit)
-      );
+      changeDue = Math.round(changeDue * 100) / 100;
+      newCid[indexUnitCid][1] = Math.round(newCid[indexUnitCid][1] * 100) / 100;
     }
   });
 
-  const changeInDrawer = Number(exactChange).toFixed(2);
+  const changeInDrawer = Math.round(exactChange * 100) / 100;
 
   return [newCid, changeInDrawerArr, changeInDrawer];
 };
@@ -125,7 +124,7 @@ const validateCustomerChange = (cash, price) => {
 
   if (cash === price) {
     const msg = "No change due - customer paid with exact cash";
-    displayMessage(msg);
+    displayResult(msg);
   }
 
   if (cash > price) {
@@ -143,7 +142,7 @@ const validateCustomerChange = (cash, price) => {
     );
 
     const msg =
-      statusMsg === "INSUFFICENT_FUNDS" ? "" : getArrHTML(changeInDrawerArr);
+      statusMsg === "INSUFFICIENT_FUNDS" ? "" : getArrHTML(changeInDrawerArr);
 
     displayResult(msg, statusMsg);
   }
