@@ -12,13 +12,19 @@ let cid = [
   ["ONE HUNDRED", 100],
 ];
 
-const displayResult = (msg, statusMsg) => {
+const displayResult = (msg, statusMsg, totalChange) => {
   const $changeInDrawerHTML = document.getElementById("change-due");
+  const $totalChangeHTML = document.getElementById("total-change");
 
+  $totalChangeHTML.textContent = "";
   const message = statusMsg ? `<p>Status: ${statusMsg}${msg}</p>` : msg;
 
-  displayUI();
   $changeInDrawerHTML.innerHTML = message;
+
+  $totalChangeHTML.textContent =
+    totalChange && statusMsg !== "<span class='red'>INSUFFICIENT_FUNDS</span>"
+      ? `$${totalChange}`
+      : "";
 };
 
 const getArrHTML = (arr) => {
@@ -53,7 +59,6 @@ const getStatusMessageAndUpdateCid = (
   newCid
 ) => {
   if (cashInDrawer < changeDue || changeInDrawer < changeDue) {
-    const noChangeFlag = true;
     return "<span class='red'>INSUFFICIENT_FUNDS</span>";
   }
 
@@ -154,7 +159,7 @@ const validateCustomerChange = (cash, price) => {
         ? ""
         : getArrHTML(changeInDrawerArr);
 
-    displayResult(msg, statusMsg);
+    displayResult(msg, statusMsg, changeDue);
   }
 };
 
@@ -178,6 +183,9 @@ $calculateChangeInDrawForm.addEventListener("submit", (e) => {
 
   const $priceInput = document.getElementById("input-price");
   price = $priceInput.value || price;
+  $priceInput.value = "";
+
+  displayUI();
 
   validateCustomerInput(cash, price);
 });

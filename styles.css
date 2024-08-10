@@ -219,6 +219,10 @@ p {
     box-shadow: 0px 0px 0px 0px #aa180d;
     transform: translateY(5px);
   }
+
+  #total-change {
+    font-weight: bold;
+  }
 }
 #change-due,
 #cid {
