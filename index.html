@@ -10,6 +10,10 @@
       href="./assets/cash-register-svgrepo-com.svg"
       type="image/xml+svg"
     />
+    <script
+      src="https://kit.fontawesome.com/60c08b7f40.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
 
   <body>
@@ -37,7 +41,9 @@
                 />
               </label>
               <h3 class="subtitle">Change Price</h3>
-              <button type="submit" id="purchase-btn">Purchase</button>
+              <button type="submit" id="purchase-btn" class="btn">
+                Purchase
+              </button>
               <input
                 id="input-price"
                 placeholder="Type your own price..."
@@ -50,12 +56,16 @@
           <div class="screens-cash_register">
             <h3 class="subtitle">Cash in Drawer</h3>
             <h3 class="subtitle">Change Due</h3>
-            <div id="cid"></div>
-            <div id="change-due"></div>
+            <div id="cid" class="drawer"></div>
+            <div id="change-due" class="drawer"></div>
+            <button type="button" class="btn" id="reset">
+              <i class="fa-solid fa-arrow-rotate-right icon"></i>
+            </button>
           </div>
         </div>
       </div>
     </main>
+
     <script src="./script.js"></script>
   </body>
 </html>

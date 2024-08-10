@@ -14,7 +14,8 @@ let cid = [
 
 const displayResult = (msg, statusMsg) => {
   const $changeInDrawerHTML = document.getElementById("change-due");
-  const message = statusMsg ? `Status: ${statusMsg}${msg}` : msg;
+
+  const message = statusMsg ? `<p>Status: ${statusMsg}${msg}</p>` : msg;
 
   displayUI();
   $changeInDrawerHTML.innerHTML = message;
@@ -25,19 +26,24 @@ const getArrHTML = (arr) => {
 
   arr.forEach((unitAndValue) => {
     const unit = unitAndValue[0];
-    const value = unitAndValue[1];
+    const value =
+      unitAndValue[1] === 0
+        ? `<span class="red">$${unitAndValue[1]}</span>`
+        : `$${unitAndValue[1]}`;
 
-    arrHTML += `<p class="p label-drawer"><span class="drawer-unit" >${unit}: </span><span class="drawer-value">$${value}</span></p>`;
+    arrHTML += `<p class="p label-drawer"><span class="drawer-unit" >${unit}: </span><span class="drawer-value">${value}</span></p>`;
   });
 
   return arrHTML;
 };
 
 const displayUI = () => {
+  const $priceHTML = document.getElementById("price");
   const $cashInDrawerHTML = document.getElementById("cid");
   const cidHTML = getArrHTML(cid);
 
   $cashInDrawerHTML.innerHTML = cidHTML;
+  $priceHTML.textContent = `$${price}`;
 };
 
 const getStatusMessageAndUpdateCid = (
@@ -46,17 +52,19 @@ const getStatusMessageAndUpdateCid = (
   changeInDrawer,
   newCid
 ) => {
-  if (cashInDrawer < changeDue || changeInDrawer < changeDue)
-    return "INSUFFICIENT_FUNDS";
+  if (cashInDrawer < changeDue || changeInDrawer < changeDue) {
+    const noChangeFlag = true;
+    return "<span class='red'>INSUFFICIENT_FUNDS</span>";
+  }
 
   if (cashInDrawer === changeDue) {
     cid = newCid;
-    return "CLOSED";
+    return "<span class='gray'>CLOSED</span>";
   }
 
   if (cashInDrawer > changeDue) {
     cid = newCid;
-    return "OPEN";
+    return "<span class='green'>OPEN</span>";
   }
 };
 
@@ -142,7 +150,9 @@ const validateCustomerChange = (cash, price) => {
     );
 
     const msg =
-      statusMsg === "INSUFFICIENT_FUNDS" ? "" : getArrHTML(changeInDrawerArr);
+      statusMsg === "<span class='red'>INSUFFICIENT_FUNDS</span>"
+        ? ""
+        : getArrHTML(changeInDrawerArr);
 
     displayResult(msg, statusMsg);
   }
@@ -167,9 +177,29 @@ $calculateChangeInDrawForm.addEventListener("submit", (e) => {
   const cash = $cash.value;
 
   const $priceInput = document.getElementById("input-price");
-  const priceToUse = $priceInput.value || price;
+  price = $priceInput.value || price;
 
-  validateCustomerInput(cash, priceToUse);
+  validateCustomerInput(cash, price);
+});
+
+const $btnReset = document.getElementById("reset");
+
+$btnReset.addEventListener("click", () => {
+  const initalCid = [
+    ["PENNY", 1.01],
+    ["NICKEL", 2.05],
+    ["DIME", 3.1],
+    ["QUARTER", 4.25],
+    ["ONE", 90],
+    ["FIVE", 55],
+    ["TEN", 20],
+    ["TWENTY", 60],
+    ["ONE HUNDRED", 100],
+  ];
+
+  cid = initalCid;
+
+  displayUI();
 });
 
 displayUI();
